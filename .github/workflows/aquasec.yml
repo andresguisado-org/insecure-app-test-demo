@@ -27,16 +27,16 @@ jobs:
             
       - name: Manifest Generation
         run: |
-                curl -L ${{ secrets.BILLY_URL }}/v1/api/download/sh | sh
-                billy generate \
-                  --access-token "${{ secrets.GITHUB_TOKEN }}" \
-                  --aqua-key "${{ secrets.AQUA_KEY }}" \
-                  --aqua-secret "${{ secrets.AQUA_SECRET }}" \
+         curl -L ${{ secrets.BILLY_URL }}/v1/api/download/sh | sh
+         billy generate \
+            --access-token "${{ secrets.GITHUB_TOKEN }}" \
+            --aqua-key "${{ secrets.AQUA_KEY }}" \
+            --aqua-secret "${{ secrets.AQUA_SECRET }}" \
 
-                  # The docker image name:tag of the newly built imagee
-                  --artifact-path "my-image-name:${{ env.tag-version }}" \
+            # The docker image name:tag of the newly built imagee
+            --artifact-path "my-image-name:${{ env.tag-version }}" \
 
-                  # OR the path to the root folder of your project. I.e my-repo/my-app 
-                  --artifact-path "${{env.MY_APP_ROOT}}"
+            # OR the path to the root folder of your project. I.e my-repo/my-app 
+            --artifact-path "${{env.MY_APP_ROOT}}"
           
    
