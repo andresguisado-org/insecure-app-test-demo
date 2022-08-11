@@ -59,7 +59,7 @@ jobs:
           sh install.sh
           rm install.sh install.sh.checksum
           billy generate \
-              --access-token "${{ secrets.GITHUB_TOKEN }}" \
+              --access-token "${{ secrets.TOKEN_GITHUB }}" \
               --aqua-key "${{ secrets.AQUA_KEY }}" \
             --aqua-secret "${{ secrets.AQUA_SECRET }}" \
             --artifact-path "test:v1" 
