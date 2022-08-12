@@ -43,9 +43,9 @@ jobs:
         run: sudo docker build -t test:v1 .
           
       # Scan the test Image
-      - name: Image Scanning
-        run: |
-          docker run  -e BUILD_JOB_NAME=FRUIT_BANK -e BUILD_NUMBER=${{ github.run_id }} -v /var/run/docker.sock:/var/run/docker.sock registry.aquasec.com/scanner:2022.4.46 scan --register --registry "CI/CD_andres_images" --local test:v1 --host $AQUA_HOST --token $AQUA_SCANNER_TOKEN --show-negligible --html > aquascan.html
+      #- name: Image Scanning
+      #  run: |
+      #    docker run  -e BUILD_JOB_NAME=FRUIT_BANK -e BUILD_NUMBER=${{ github.run_id }} -v /var/run/docker.sock:/var/run/docker.sock registry.aquasec.com/scanner:2022.4.46 scan --register --registry "CI/CD_andres_images" --local test:v1 --host $AQUA_HOST --token $AQUA_SCANNER_TOKEN --show-negligible --html > aquascan.html
     #Debug: -e SCALOCK_LOG_LEVEL=DEBUG
         
       - name: SBOM Manifest Generation
@@ -62,7 +62,7 @@ jobs:
               --access-token "${{ secrets.TOKEN_GITHUB }}" \
               --aqua-key "${{ secrets.AQUA_KEY }}" \
             --aqua-secret "${{ secrets.AQUA_SECRET }}" \
-            --artifact-path "test:v1" 
+            --artifact-path "${{ GITHUB_WORKSPACE }}" 
 
         # The docker image name:tag of the newly built image
         # --artifact-path "my-image-name:${{ env.tag-version }}" 
