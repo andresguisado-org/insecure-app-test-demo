@@ -25,10 +25,10 @@ jobs:
           scan-type: 'fs'
           security-checks: 'vuln,config,secret'
           hide-progress: false
-          format: 'template'
-          template: '@/contrib/sarif.tpl'
+          format: 'sarif,table'
+          #template: '@/contrib/sarif.tpl'
           #template: '@/contrib/html.tpl'
-          output: 'repo-scan-results.sarif,'
+          output: 'repo-scan-results.sarif'
         env:
           AQUA_KEY: ${{ secrets.AQUA_KEY }}
           AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
