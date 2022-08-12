@@ -40,7 +40,7 @@ jobs:
         
       # Runs docker build 
       - name: Build docker image
-        run: sudo docker build -t test:v1 src/
+        run: sudo docker build -t test:v1 .
           
       # Scan the test Image
       - name: Image Scanning
