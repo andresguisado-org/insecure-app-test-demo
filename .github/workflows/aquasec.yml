@@ -6,7 +6,7 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -40,7 +40,7 @@ jobs:
         
       # Runs docker build 
       - name: Build docker image
-        run: docker build -t test:v1 .
+        run: sudo docker build -t test:v1 .
           
       # Scan the test Image
       - name: Image Scanning
