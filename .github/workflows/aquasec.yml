@@ -45,7 +45,7 @@ jobs:
       # Scan the test Image
       - name: Image Scanning
         run: |
-          docker run -e BUILD_JOB_NAME=FRUIT_BANK -e BUILD_NUMBER=${{ github.run_id }} --rm -v /var/run/docker.sock:/var/run/docker.sock registry.aquasec.com/scanner:2022.4.46 scan --register --registry CI/CD_andres_images --local test:v1 --host ${{ env.AQUA_HOST }} --token ${{ env.AQUA_SCANNER_TOKEN }} --show-negligible --html > aquascan.html
+          docker run -e BUILD_JOB_NAME=FRUIT_BANK -e BUILD_NUMBER=${{ github.run_id }} --rm -v /var/run/docker.sock:/var/run/docker.sock registry.aquasec.com/scanner:2022.4.46 scan --register --registry CI/CD_andres_images --local test:v1 --host ${{ secrets.AQUA_HOST }} --token ${{ secrets.AQUA_SCANNER_TOKEN }} --show-negligible --html > aquascan.html
     #Debug: -e SCALOCK_LOG_LEVEL=DEBUG
         
       - name: SBOM Manifest Generation
