@@ -66,12 +66,11 @@ jobs:
           fi
           sh install.sh
           rm install.sh install.sh.checksum
-          ls
           billy generate \
               --access-token "${{ secrets.TOKEN_GITHUB }}" \
               --aqua-key "${{ secrets.AQUA_KEY }}" \
             --aqua-secret "${{ secrets.AQUA_SECRET }}" \
-            --output sbom.json
+            --output sbom.json \
             --artifact-path .
 
         # The docker image name:tag of the newly built image
