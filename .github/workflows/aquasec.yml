@@ -25,7 +25,7 @@ jobs:
           scan-type: 'fs'
           security-checks: 'vuln,config,secret'
           hide-progress: false
-          format: 'sarif,table'
+          format: 'sarif'
           #template: '@/contrib/sarif.tpl'
           #template: '@/contrib/html.tpl'
           output: 'repo-scan-results.sarif'
