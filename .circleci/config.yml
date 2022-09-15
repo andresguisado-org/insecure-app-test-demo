@@ -1,0 +1,37 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
+# Test
+version: 2.1
+
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+jobs:
+  build:
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    docker:
+      - image: docker:18.09-git
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    working_directory: /tmp/myscan # Define a working directory in order to retrieve artifacts
+    steps:
+      - checkout
+      - setup_remote_docker # Set up remote docker in order to use docker socket for CircleCI
+      - run:
+          name: Build image
+          command: docker build -t scannercli-ci-test:${CIRCLE_SHA1} .
+      - run:
+          name: Retrieve Aqua Scanner and scan build 
+          command: |
+            mkdir scanresult
+            docker login registry.aquasec.com -u $AQUA_USER -p $AQUA_PASSWORD
+            docker run -e SCALOCK_LOG_LEVEL=DEBUG -v /var/run/docker.sock:/var/run/docker.sock registry.aquasec.com/scanner:6.5 scan -U $SCAN_USER -P $SCAN_PASSWORD -H http://20.86.207.36:8080/ --local scannercli-ci-test:${CIRCLE_SHA1} --html > scanresult/scan.html 
+      - store_artifacts:
+          path: /tmp/myscan/scanresult # Retrieve all the output files in the scanresult folder created
+          destination: scanresult # Optional line. Set the output folder name as scanresult in the Artifacts tab
+workflows:
+  version: 2
+  release:
+    jobs:
+      - build:
+          context: my-scanner # Context set up in Organization Settings that contains the Environment Variables 
