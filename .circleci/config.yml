@@ -33,7 +33,7 @@ jobs:
           #./trivy fs --security-checks config,vuln,secret .
       - store_artifacts:
           path: aquacodescan.html # Retrieve all the output files in the scanresult folder created
-          destination: /tmp/aquascanrepo # Optional line. Set the output folder name as scanresult in the Artifacts tab
+          destination: /tmp/myscan/aquascanrepo # Optional line. Set the output folder name as scanresult in the Artifacts tab
           
   build_and_aqua_image_scanning:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
@@ -69,7 +69,7 @@ jobs:
           #docker push
       - store_artifacts:
           path: aquaimagescan.html # Retrieve all the output files in the scanresult folder created
-          destination: /tmp/aquaimagescan # Optional line. Set the output folder name as scanresult in the Artifacts tab
+          destination: /tmp/myscan/aquaimagescan # Optional line. Set the output folder name as scanresult in the Artifacts tab
   
   aqua_generate_sbom:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
@@ -106,7 +106,7 @@ jobs:
              --artifact-path pom.xml
       - store_artifacts:
           path: sbom.json # Retrieve all the output files in the scanresult folder created
-          destination: /tmp/sbomresult # Optional line. Set the output folder name as scanresult in the Artifacts tab        
+          destination: /tmp/myscan/sbomresult # Optional line. Set the output folder name as scanresult in the Artifacts tab        
      
 workflows:
   version: 2
