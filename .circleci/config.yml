@@ -21,17 +21,20 @@ jobs:
           name: Retrieve Aqua Scanner and scan build 
           command: |
             mkdir scanreporesult
-            export AQUA_KEY=$AQUA_KEY
-            export AQUA_SECRET=$AQUA_SECRET
+            export AQUA_KEY=${AQUA_KEY}
+            export AQUA_SECRET=${AQUA_SECRET}
             export trivyVersion=0.31.2
             export TRIVY_RUN_AS_PLUGIN=aqua
             curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b . v${trivyVersion}
+            trivy plugin update aqua
+            trivy -d fs --format template --template "@Report-Templates/aqua.tpl" -o report.html --security-checks config,vuln,secret .
+
             ./trivy fs --security-checks config,vuln,secret .
       - store_artifacts:
           path: /tmp/myscan/scanreporesult # Retrieve all the output files in the scanresult folder created
           destination: scanreporesult # Optional line. Set the output folder name as scanresult in the Artifacts tab
           
-  build_app:
+  build_and_aqua_image_scanning:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     docker:
@@ -44,48 +47,28 @@ jobs:
       - setup_remote_docker # Set up remote docker in order to use docker socket for CircleCI
       - run:
           name: Build APP
-          command: echo Container Image has been built!!
-          
-  build_image:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-      - image: docker:18.09-git
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
-    working_directory: /tmp/myscan # Define a working directory in order to retrieve artifacts
-    steps:
-      - checkout
-      - setup_remote_docker # Set up remote docker in order to use docker socket for CircleCI
-      - run:
-          name: Build image
           command: echo APP has been built!!
-          
-  aqua_image_scanning:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-      - image: docker:18.09-git
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
-    working_directory: /tmp/myscan # Define a working directory in order to retrieve artifacts
-    steps:
-      - checkout
-      - setup_remote_docker # Set up remote docker in order to use docker socket for CircleCI
       - run:
           name: Build image
-          command: docker build -t scannercli-ci-test:${CIRCLE_SHA1} .
+          command: docker build -t circleci-test:1.0 .
+          #circleci-test:${CIRCLE_SHA1}
       - run:
-          name: Retrieve Aqua Scanner and scan build 
+          name: Scanning Image
           command: |
-            mkdir scanresult
-            docker login registry.aquasec.com -u $AQUADEV_USERNAME -p $AQUADEV_PASS
-            docker run -e BUILD_JOB_NAME=$CI_JOB_NAME -e BUILD_URL=$CI_JOB_URL -e BUILD_NUMBER=$CI_JOB_ID --rm -v /tmp:$CI_PROJECT_DIR -v /var/run/docker.sock:/var/run/docker.sock $AQUA_REGISTRY/scanner:2022.4.46 scan --register --registry "CI/CD_andres_images" --local $DOCKER_REGISTRY_IMAGE:$IMAGE_TAG --host $AQUA_HOST --token $AQUA_SCANNER_TOKEN --show-negligible --html > aquascan.html
+            mkdir scanimageresult
+            docker login registry.aquasec.com -u ${AQUA_USER} -p ${AQUA_PASSWORD}
+            docker run  --rm -v /var/run/docker.sock:/var/run/docker.sock registry.aquasec.com/scanner:2022.4.46 scan --register --registry CI/CD_andres_images --local circleci-test:1.0 --host ${AQUA_HOST} --token ${AQUA_SCANNER_TOKEN} --show-negligible --html > aquascan.html
+          # -e BUILD_JOB_NAME=my-job -e BUILD_NUMBER=${{ github.run_id }}
           # Add below for debugging purposes
           #-e SCALOCK_LOG_LEVEL=DEBUG 
+      - run:
+          name: Push Image
+          command: |
+            echo Pushing the image to registry
+          #docker push
       - store_artifacts:
-          path: /tmp/myscan/scanresult # Retrieve all the output files in the scanresult folder created
-          destination: scanresult # Optional line. Set the output folder name as scanresult in the Artifacts tab
+          path: /tmp/myscan/scanimageresult # Retrieve all the output files in the scanresult folder created
+          destination: scanimageresult # Optional line. Set the output folder name as scanresult in the Artifacts tab
   
   aqua_generate_sbom:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
@@ -99,23 +82,36 @@ jobs:
       - checkout
       - setup_remote_docker # Set up remote docker in order to use docker socket for CircleCI
       - run:
-          name: Build image
-          command: docker build -t scannercli-ci-test:${CIRCLE_SHA1} .
+          name: Pull Image
+          command: docker pull andresguisado/circleci-test:1.0
       - run:
-          name: Retrieve Aqua Scanner and scan build 
+          name: Generating SBOM
           command: |
-            mkdir scanresult
-            docker login registry.aquasec.com -u $AQUADEV_USERNAME -p $AQUADEV_PASS
-            docker run -e BUILD_JOB_NAME=$CI_JOB_NAME -e BUILD_URL=$CI_JOB_URL -e BUILD_NUMBER=$CI_JOB_ID --rm -v /tmp:$CI_PROJECT_DIR -v /var/run/docker.sock:/var/run/docker.sock $AQUA_REGISTRY/scanner:2022.4.46 scan --register --registry "CI/CD_andres_images" --local $DOCKER_REGISTRY_IMAGE:$IMAGE_TAG --host $AQUA_HOST --token $AQUA_SCANNER_TOKEN --show-negligible --html > aquascan.html
-          # Add below for debugging purposes
-          #-e SCALOCK_LOG_LEVEL=DEBUG 
+            mkdir sbomresult
+            curl -sLo install.sh download.codesec.aquasec.com/billy/install.sh
+            curl -sLo install.sh.checksum https://github.com/argonsecurity/releases/releases/latest/download/install.sh.checksum
+            if ! cat install.sh.checksum | shasum -a 256 ; then
+            echo "install.sh checksum failed"
+            exit 1
+            fi
+            sh install.sh
+            rm install.sh install.sh.checksum
+            billy generate \
+             --access-token "${CIRCLECI_TOKEN}" \
+             --aqua-key "${AQUA_KEY}" \
+             --aqua-secret "${AQUA_SECRET}" \
+             --output sbom.json \
+             --artifact-path .
       - store_artifacts:
-          path: /tmp/myscan/scanresult # Retrieve all the output files in the scanresult folder created
-          destination: scanresult # Optional line. Set the output folder name as scanresult in the Artifacts tab        
+          path: /tmp/myscan/sbomresult # Retrieve all the output files in the scanresult folder created
+          destination: sbomresult # Optional line. Set the output folder name as scanresult in the Artifacts tab        
      
 workflows:
   version: 2
   release:
     jobs:
-      - build:
+      - aqua_repo_scanning:
           context: my-scanner # Context set up in Organization Settings that contains the Environment Variables 
+      - build_and_aqua_image_scanning
+      - aqua_generate_sbom
+      
