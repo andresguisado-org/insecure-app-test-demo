@@ -83,7 +83,7 @@ jobs:
       - checkout
       - setup_remote_docker # Set up remote docker in order to use docker socket for CircleCI
       - run:
-          name: Pull Image
+          name: Pulling Image
           command: docker pull andresguisado/circleci-test:1.0
       - run: sudo apt-get update && sudo apt-get install -y curl
       - run:
@@ -103,7 +103,8 @@ jobs:
              --aqua-key "${AQUA_KEY}" \
              --aqua-secret "${AQUA_SECRET}" \
              --output sbom.json \
-             --artifact-path pom.xml
+             --artifact-path "circleci-test:1.0"
+          #--artifact-path pom.xml
       - store_artifacts:
           path: sbom.json # Retrieve all the output files in the scanresult folder created
           destination: /tmp/myscan/sbomresult # Optional line. Set the output folder name as scanresult in the Artifacts tab        
