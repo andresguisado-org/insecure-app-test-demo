@@ -103,7 +103,7 @@ jobs:
              --aqua-key "${AQUA_KEY}" \
              --aqua-secret "${AQUA_SECRET}" \
              --output sbom.json \
-             --artifact-path .
+             --artifact-path pom.xml
       - store_artifacts:
           path: sbom.json # Retrieve all the output files in the scanresult folder created
           destination: /tmp/sbomresult # Optional line. Set the output folder name as scanresult in the Artifacts tab        
