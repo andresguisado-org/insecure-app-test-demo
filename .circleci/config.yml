@@ -28,8 +28,8 @@ jobs:
             export trivyVersion=0.31.2
             export TRIVY_RUN_AS_PLUGIN=aqua
             curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b . v${trivyVersion}
-            trivy plugin update aqua
-            trivy -d fs --format template --template "@Report-Templates/aqua.tpl" -o scancodereport.html --security-checks config,vuln,secret .
+          # trivy plugin update aqua
+            ./trivy -d fs --format template --template "@Report-Templates/aqua.tpl" -o scancodereport.html --security-checks config,vuln,secret .
 
           #./trivy fs --security-checks config,vuln,secret .
       - store_artifacts:
