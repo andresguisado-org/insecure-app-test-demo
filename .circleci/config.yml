@@ -98,7 +98,7 @@ jobs:
             fi
             sh install.sh
             rm install.sh install.sh.checksum
-            billy generate \
+            billy health \
              --access-token "${CIRCLECI_TOKEN}" \
              --aqua-key "${AQUA_KEY}" \
              --aqua-secret "${AQUA_SECRET}" \
