@@ -116,7 +116,7 @@ workflows:
           context: my-scanner # Context set up in Organization Settings that contains the Environment Variables 
       - build_and_aqua_image_scanning:
           requires:
-            - aqua_repo_scanning
+            - aqua_code_scanning
       - aqua_generate_sbom:
           requires:
             - build_and_aqua_image_scanning
