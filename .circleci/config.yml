@@ -20,7 +20,7 @@ jobs:
       - setup_remote_docker # Set up remote docker in order to use docker socket for CircleCI
       - run: sudo apt-get update && sudo apt-get install -y curl
       - run:
-          name: Retrieve Aqua Scanner and scan build 
+          name: Aqua Scanning Code
           command: |
             mkdir scanreporesult
             export AQUA_KEY=${AQUA_KEY}
@@ -28,9 +28,8 @@ jobs:
             export trivyVersion=0.31.2
             export TRIVY_RUN_AS_PLUGIN=aqua
             curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b . v${trivyVersion}
-          # trivy plugin update aqua
             ./trivy -d fs --format template --template "@Report-Templates/aqua.tpl" -o scancodereport.html --security-checks config,vuln,secret .
-
+          # trivy plugin update aqua
           #./trivy fs --security-checks config,vuln,secret .
       - store_artifacts:
           path: /tmp/myscan/scancoderesult # Retrieve all the output files in the scanresult folder created
