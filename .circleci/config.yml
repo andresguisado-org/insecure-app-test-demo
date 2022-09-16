@@ -6,17 +6,19 @@ version: 2.1
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  aqua_repo_scanning:
+  aqua_code_scanning:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     docker:
-      - image: docker:18.09-git
+      - image: cimg/base:2022.09
+    # docker:18.09-git
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     working_directory: /tmp/myscan # Define a working directory in order to retrieve artifacts
     steps:
       - checkout
       - setup_remote_docker # Set up remote docker in order to use docker socket for CircleCI
+      - run: sudo apt-get update && sudo apt-get install -y curl
       - run:
           name: Retrieve Aqua Scanner and scan build 
           command: |
@@ -27,12 +29,12 @@ jobs:
             export TRIVY_RUN_AS_PLUGIN=aqua
             curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b . v${trivyVersion}
             trivy plugin update aqua
-            trivy -d fs --format template --template "@Report-Templates/aqua.tpl" -o report.html --security-checks config,vuln,secret .
+            trivy -d fs --format template --template "@Report-Templates/aqua.tpl" -o scancodereport.html --security-checks config,vuln,secret .
 
-            ./trivy fs --security-checks config,vuln,secret .
+          #./trivy fs --security-checks config,vuln,secret .
       - store_artifacts:
-          path: /tmp/myscan/scanreporesult # Retrieve all the output files in the scanresult folder created
-          destination: scanreporesult # Optional line. Set the output folder name as scanresult in the Artifacts tab
+          path: /tmp/myscan/scancoderesult # Retrieve all the output files in the scanresult folder created
+          destination: scancoderesult # Optional line. Set the output folder name as scanresult in the Artifacts tab
           
   build_and_aqua_image_scanning:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
@@ -110,7 +112,7 @@ workflows:
   version: 2
   release:
     jobs:
-      - aqua_repo_scanning:
+      - aqua_code_scanning:
           context: my-scanner # Context set up in Organization Settings that contains the Environment Variables 
       - build_and_aqua_image_scanning:
           requires:
