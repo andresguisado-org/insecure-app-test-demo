@@ -22,18 +22,18 @@ jobs:
       - run:
           name: Aqua Scanning Code
           command: |
-            mkdir scanreporesult
+            mkdir aquascanrepo
             export AQUA_KEY=${AQUA_KEY}
             export AQUA_SECRET=${AQUA_SECRET}
             export trivyVersion=0.31.2
             export TRIVY_RUN_AS_PLUGIN=aqua
             curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b . v${trivyVersion}
-            ./trivy -d fs --format template --template "@Report-Templates/aqua.tpl" -o scancodereport.html --security-checks config,vuln,secret .
+            ./trivy -d fs --format template --template "@Report-Templates/aqua.tpl" -o aquacodescan.html --security-checks config,vuln,secret .
           # trivy plugin update aqua
           #./trivy fs --security-checks config,vuln,secret .
       - store_artifacts:
-          path: /tmp/myscan/scancoderesult # Retrieve all the output files in the scanresult folder created
-          destination: scancoderesult # Optional line. Set the output folder name as scanresult in the Artifacts tab
+          path: aquacodescan.html # Retrieve all the output files in the scanresult folder created
+          destination: /tmp/aquascanrepo # Optional line. Set the output folder name as scanresult in the Artifacts tab
           
   build_and_aqua_image_scanning:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
@@ -56,9 +56,9 @@ jobs:
       - run:
           name: Scanning Image
           command: |
-            mkdir scanimageresult
+            mkdir aquaimagescan
             docker login registry.aquasec.com -u ${AQUA_USER} -p ${AQUA_PASSWORD}
-            docker run  --rm -v /var/run/docker.sock:/var/run/docker.sock registry.aquasec.com/scanner:2022.4.46 scan --register --registry CI/CD_andres_images --local circleci-test:1.0 --host ${AQUA_HOST} --token ${AQUA_SCANNER_TOKEN} --show-negligible --html > aquascan.html
+            docker run  --rm -v /var/run/docker.sock:/var/run/docker.sock registry.aquasec.com/scanner:2022.4.46 scan --register --registry CI/CD_andres_images --local circleci-test:1.0 --host ${AQUA_HOST} --token ${AQUA_SCANNER_TOKEN} --show-negligible --html > aquaimagescan.html
           # -e BUILD_JOB_NAME=my-job -e BUILD_NUMBER=${{ github.run_id }}
           # Add below for debugging purposes
           #-e SCALOCK_LOG_LEVEL=DEBUG 
@@ -68,8 +68,8 @@ jobs:
             echo Pushing the image to registry
           #docker push
       - store_artifacts:
-          path: /tmp/myscan/scanimageresult # Retrieve all the output files in the scanresult folder created
-          destination: scanimageresult # Optional line. Set the output folder name as scanresult in the Artifacts tab
+          path: aquaimagescan.html # Retrieve all the output files in the scanresult folder created
+          destination: /tmp/aquaimagescan # Optional line. Set the output folder name as scanresult in the Artifacts tab
   
   aqua_generate_sbom:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
@@ -85,6 +85,7 @@ jobs:
       - run:
           name: Pull Image
           command: docker pull andresguisado/circleci-test:1.0
+      - run: sudo apt-get update && sudo apt-get install -y curl
       - run:
           name: Generating SBOM
           command: |
@@ -104,8 +105,8 @@ jobs:
              --output sbom.json \
              --artifact-path .
       - store_artifacts:
-          path: /tmp/myscan/sbomresult # Retrieve all the output files in the scanresult folder created
-          destination: sbomresult # Optional line. Set the output folder name as scanresult in the Artifacts tab        
+          path: sbom.json # Retrieve all the output files in the scanresult folder created
+          destination: /tmp/sbomresult # Optional line. Set the output folder name as scanresult in the Artifacts tab        
      
 workflows:
   version: 2
