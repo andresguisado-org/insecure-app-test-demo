@@ -74,7 +74,7 @@ jobs:
               --aqua-key "${{ secrets.AQUA_KEY }}" \
             --aqua-secret "${{ secrets.AQUA_SECRET }}" \
             --output sbom.json \
-            --artifact-path .
+            --artifact-path pom.xml
 
         # The docker image name:tag of the newly built image
         # --artifact-path "my-image-name:${{ env.tag-version }}" 
