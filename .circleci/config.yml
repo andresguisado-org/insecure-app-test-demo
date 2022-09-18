@@ -27,6 +27,7 @@ jobs:
             export AQUA_SECRET=${AQUA_SECRET}
             export trivyVersion=0.31.2
             export TRIVY_RUN_AS_PLUGIN=aqua
+            export GITHUB_TOKEN=${GITHUB_TOKEN}
             curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b . v${trivyVersion}
             ./trivy -d fs --format template --template "@Report-Templates/aqua.tpl" -o aquacodescan.html --security-checks config,vuln,secret .
           # trivy plugin update aqua
@@ -99,7 +100,7 @@ jobs:
             sh install.sh
             rm install.sh install.sh.checksum
             billy health \
-             --access-token "${CIRCLECI_TOKEN}" \
+             --access-token "${GITHUB_TOKEN}" \
              --aqua-key "${AQUA_KEY}" \
              --aqua-secret "${AQUA_SECRET}" \
              --output sbom.json \
