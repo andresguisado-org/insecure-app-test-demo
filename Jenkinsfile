@@ -21,7 +21,7 @@ timestamps {
                     curl -sLO https://github.com/aquasecurity/trivy/releases/download/v${trivyVersion}/trivy_${trivyVersion}_checksums.txt
                     grep trivy_${trivyVersion}_Linux-64bit.deb trivy_${trivyVersion}_checksums.txt > trivy_${trivyVersion}_Linux-64bit.checksum
                     sha256sum -c trivy_${trivyVersion}_Linux-64bit.checksum
-                    dpkg -i trivy_${trivyVersion}_Linux-64bit.deb
+                    sudo dpkg -i trivy_${trivyVersion}_Linux-64bit.deb
                     trivy plugin update aqua
                     trivy fs --debug --format template --template "@Report-Templates/aqua.tpl" -o report.html --security-checks config,vuln,secret .
 
