@@ -17,9 +17,13 @@ timestamps {
                 sh '''
                     export TRIVY_RUN_AS_PLUGIN=aqua
                     export trivyVersion=0.32.0
-                    curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b . v${trivyVersion}  
+                    curl -sLO https://github.com/aquasecurity/trivy/releases/download/v${trivyVersion}/trivy_${trivyVersion}_Linux-64bit.deb
+                    curl -sLO https://github.com/aquasecurity/trivy/releases/download/v${trivyVersion}/trivy_${trivyVersion}_checksums.txt
+                    grep trivy_${trivyVersion}_Linux-64bit.deb trivy_${trivyVersion}_checksums.txt > trivy_${trivyVersion}_Linux-64bit.checksum
+                    sha256sum -c trivy_${trivyVersion}_Linux-64bit.checksum
+                    dpkg -i trivy_${trivyVersion}_Linux-64bit.deb
                     trivy plugin update aqua
-                    ./trivy fs --debug --format template --template "@Report-Templates/aqua.tpl" -o report.html --security-checks config,vuln,secret .
+                    trivy fs --debug --format template --template "@Report-Templates/aqua.tpl" -o report.html --security-checks config,vuln,secret .
 
                 '''
             }
