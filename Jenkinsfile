@@ -55,7 +55,7 @@ timestamps {
                         --aqua-key ${AQUA_KEY} \
                         --aqua-secret ${AQUA_SECRET} \
                         --access-token ${GITHUB_TOKEN} \
-                        --artifact-path requirements.txt
+                        --artifact-path ./requirements.txt
 
                         # The docker image name:tag of the newly built image
                         # --artifact-path "my-image-name:my-image-tag" 
