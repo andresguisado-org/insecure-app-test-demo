@@ -25,8 +25,9 @@ timestamps {
         }
         stage('Build Docker Image') {
             // fake build by downloading an image
+	    // docker pull aquasaemea/mynodejs-app:1.0
             sh '''
-                docker pull aquasaemea/mynodejs-app:1.0
+	        echo the image has been built !!
             '''
         }
         stage('Manifest Generation') {
@@ -38,6 +39,7 @@ timestamps {
             ]) {
                 // Replace ARTIFACT_PATH with the path to the root folder of your project 
                 // or with the name:tag the newly built image
+		// --artifact-path "aquasaemea/mynodejs-app:1.0"
                 
                 sh '''
                     export BILLY_SERVER=https://prod-aqua-billy.codesec.aquasec.com
@@ -53,7 +55,7 @@ timestamps {
                         --aqua-key ${AQUA_KEY} \
                         --aqua-secret ${AQUA_SECRET} \
                         --access-token ${GITHUB_TOKEN} \
-                        --artifact-path "aquasaemea/mynodejs-app:1.0"
+                        --artifact-path requirements.txt
 
                         # The docker image name:tag of the newly built image
                         # --artifact-path "my-image-name:my-image-tag" 
