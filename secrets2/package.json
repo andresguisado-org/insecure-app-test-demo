@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "webpack-merge": "4.1.0",
-    "docker-hub-api": "0.5.1",
+    "docker-hub-api": "0.8.0",
     "axe-core": "4.3.5"
   }
 }
