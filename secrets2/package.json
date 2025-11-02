@@ -7,7 +7,7 @@
     "postdev": "webpack"
   },
   "dependencies": {
-    "webpack-merge": "4.1.0",
+    "webpack-merge": "4.2.2",
     "docker-hub-api": "0.5.1",
     "axe-core": "4.3.5"
   }
